@@ -5,6 +5,7 @@ import cors from "cors";
 import coookieParser from "cookie-parser";
 import {ErrorMiddleware} from "./middleware/error";
 import userRouter from "./routes/User.route"
+import courseRouter from "./routes/course.route";
 
 //body
 
@@ -33,8 +34,8 @@ app.get("/test", (req: Request, res: Response, next: NextFunction) => {
 
 
 //route
-
-app.use("/api/v1", userRouter)
+app.use("/api/v1",   userRouter);
+app.use("/api/v1",   courseRouter );
 
   
 //unknown route 
