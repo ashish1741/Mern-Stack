@@ -215,3 +215,169 @@ export const addQuestion = catchAsyncError(
     }
   }
 );
+
+// add anwser in course question
+
+interface IAddAnswerData {
+  anwser: string;
+  courseId: string;
+  contentId: string;
+  questionId: string;
+}
+
+export const addAnswer = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { anwser, courseId, contentId, questionId }: IAddAnswerData =
+        req.body;
+
+      const course = await CourseModel.findById(courseId);
+
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        return next(new ErrorHandler("Invalid content id", 400));
+      }
+
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId)
+      );
+
+      if (!courseContent) {
+        console.log("run invalid user");
+
+        return next(new ErrorHandler("Invalid content id", 400));
+      }
+
+      const question = courseContent?.question?.find((item: any) =>
+        item._id.equals(questionId)
+      );
+
+      if (!question) {
+        console.log(`question not found:`);
+
+        return next(new ErrorHandler("question not found", 400));
+      }
+
+      //create a new answer objects
+      const newAnswer: any = {
+        user: req.user,
+        anwser,
+      };
+
+      //add answer to the replies
+      question.questionReplies.push(newAnswer);
+      await course?.save();
+
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+// add review on the course
+
+interface IAddReview {
+  review: string;
+  rating: Number;
+  userId: string;
+}
+
+export const addReview = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userCourseList = req.user?.courses;
+      const courseID = req.params.id;
+
+      const courseExist = userCourseList?.some(
+        (course: any) => course._id.toString() === courseID.toString()
+      );
+      if (!courseExist) {
+        return next(
+          new ErrorHandler("You are not eligible to access this course", 400)
+        );
+      }
+
+      const course = await CourseModel.findById(courseID);
+
+      const { review, rating } = req.body as IAddReview;
+
+      const reviewData: any = {
+        user: req.user,
+        rating,
+        Comment: review,
+      };
+
+      course?.reviews.push(reviewData);
+
+      let avg = 0;
+
+      course?.reviews.forEach((rev: any) => {
+        avg += rev.rating;
+      });
+
+      if (course) {
+        course.ratings = avg / course.reviews.length;
+      }
+
+      await course?.save();
+      
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+
+//get all courses for admin
+
+export const getAllCourses = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllCourseService(res);
+    } catch (error: any) {
+      console.log(`${next(new ErrorHandler(error.message, 400))}`);
+
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//delete user  ---only for admin
+
+export const deleteCourse = catchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
+  try {
+    console.log(`try run block`);
+    
+    const {id} = req.params
+
+    const course = await CourseModel.findById(id);
+
+    if (!course) {
+      return next(new ErrorHandler("User doesn't exist", 404));
+      
+    }
+
+    await course.deleteOne({id});
+    await redis.del(id);
+
+    res.status(200).json({
+      success:true,
+      message:"course deleted sucessfully"
+
+    });
+
+    
+  } catch (error: any) {
+    console.log(`${next(new ErrorHandler(error.message, 400))}`);
+
+    return next(new ErrorHandler(error.message, 400));
+  }
+
+})

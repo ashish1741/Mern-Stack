@@ -11,7 +11,7 @@ import {
   sendToken,
 } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getUserById } from "../services/user.services";
+import { getAllUserService, getUserById, updateUserRoleService } from "../services/user.services";
 
 interface IRegistractionBody {
   name: string;
@@ -101,7 +101,6 @@ export const logoutUser = catchAsyncError(
       res.cookie("refresh_token", " ", { maxAge: 1 });
 
       const userId = req.user?._id || "";
-      // console.log(req.user?._id);
       redis.del(userId);
 
       res.status(200).json({
@@ -131,7 +130,7 @@ export const updateAcessToken = catchAsyncError(
 
       const session = await redis.get(decoded.id as string);
       if (!session) {
-        return next(new ErrorHandler(message, 400));
+        return next(new ErrorHandler("please login for access these resources", 400));
       }
 
       const user = JSON.parse(session);
@@ -153,8 +152,11 @@ export const updateAcessToken = catchAsyncError(
       );
 
       req.user = user;
+
       res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", refreshToken, refreshTokenOptions);
+
+      await redis.set(user._id,JSON.stringify(user), 'EX' , 6048000)
 
       res.status(200).json({
         status: "success",
@@ -228,9 +230,7 @@ export const updatePassword = catchAsyncError(
       const { oldPassword, newPassword } = req.body as IUpadtePassword;
 
       if (!oldPassword || !newPassword) {
-        console.log(
-          `${next(new ErrorHandler("please enter old and new password", 400))}`
-        );
+       
 
         return next(new ErrorHandler("please enter old and new password", 400));
       }
@@ -239,7 +239,6 @@ export const updatePassword = catchAsyncError(
       console.log("user ", user);
 
       if (user?.password === undefined) {
-        console.log(`${next(new ErrorHandler("Inavalid user", 400))}`);
 
         return next(new ErrorHandler("Inavalid user", 400));
       }
@@ -247,7 +246,6 @@ export const updatePassword = catchAsyncError(
       const isPasswordMatch = await user?.comparePassword(oldPassword);
 
       if (!isPasswordMatch) {
-        console.log(`${next(new ErrorHandler("Invalid old password", 400))}`);
 
         return next(new ErrorHandler("Invalid old password", 400));
       }
@@ -305,3 +303,71 @@ export const updateProfilePicture = catchAsyncError(
     }
   }
 );
+
+
+// get all user -- only admin
+
+export const getAllUser = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log(`run try block`);
+
+      getAllUserService(res);
+    } catch (error: any) {
+      console.log(`${next(new ErrorHandler(error.message, 400))}`);
+
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+
+//update user role -- only for admin
+
+export const updateUserRole = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, role } = req.body;
+
+      updateUserRoleService(res, id, role);
+    } catch (error: any) {
+      console.log(`${next(new ErrorHandler(error.message, 400))}`);
+
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+
+//delete user  ---only for admin
+
+export const deleteUser = catchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
+  try {
+    console.log(`try run block`);
+    
+    const {id} = req.params
+
+    const user = await UserModel.findById(id);
+
+    if (!user) {
+      return next(new ErrorHandler("User doesn't exist", 404));
+      
+    }
+
+    await user.deleteOne({id});
+    await redis.del(id);
+
+    res.status(200).json({
+      success:true,
+      message:"User deleted sucessfully"
+
+    });
+
+    
+  } catch (error: any) {
+    console.log(`${next(new ErrorHandler(error.message, 400))}`);
+
+    return next(new ErrorHandler(error.message, 400));
+  }
+
+})

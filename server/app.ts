@@ -6,6 +6,7 @@ import coookieParser from "cookie-parser";
 import {ErrorMiddleware} from "./middleware/error";
 import userRouter from "./routes/User.route"
 import courseRouter from "./routes/course.route";
+import orderRouter from "./routes/order.route";
 
 //body
 
@@ -36,6 +37,7 @@ app.get("/test", (req: Request, res: Response, next: NextFunction) => {
 //route
 app.use("/api/v1",   userRouter);
 app.use("/api/v1",   courseRouter );
+app.use("/api/v1",   orderRouter);
 
   
 //unknown route 
