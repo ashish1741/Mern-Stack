@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 100px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            color: #182444;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            color: #555;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .code-box {
+            background-color: #ffcc00;
+            color: #333;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background-color: rgb(4, 33, 63);
+            color: rgb(255, 255, 255)878;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: bolder;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .course-link {
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="https://your-logo-url.png" alt="Pathshala Logo" class="logo">
+        <div class="header">Welcome to Pathshala!</div>
+        <h2>Hello ,<span style="color:#182444; font-weight: bolder; text-transform: capitalize;"><%= user.name %></span></h2>
+        <p class="message">Your activation code:</p>
+        <div class="code-box"><%= activationCode %></div>
+        <p class="message">This code will be valid for only 5 minutes.</p>
+        <p class="message">Thank you for registering with Pathshala! Wish you a great e-learning experience.</p>
+        <a href="https://your-pathshala-url.com" class="btn" target="_blank">Explore Courses</a>
+        <div class="footer">
+            <p>Follow us on <a href="https://twitter.com/pathshala" target="_blank">Twitter</a> and <a href="https://facebook.com/pathshala" target="_blank">Facebook</a> for updates!</p>
+            <p>Pathshala - Your Learning Companion</p>
+        </div>
+    </div>
+</body>
+
+</html>

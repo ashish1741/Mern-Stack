@@ -4,6 +4,7 @@ export const app = express();
 import cors from "cors";
 import coookieParser from "cookie-parser";
 import {ErrorMiddleware} from "./middleware/error";
+import userRouter from "./routes/User.route"
 
 //body
 
@@ -31,6 +32,11 @@ app.get("/test", (req: Request, res: Response, next: NextFunction) => {
 });
 
 
+//route
+
+app.use("/api/v1", userRouter)
+
+  
 //unknown route 
 
 app.all("*", (req: Request ,  res: Response ,  next: NextFunction) => {
