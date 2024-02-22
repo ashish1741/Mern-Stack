@@ -16,12 +16,20 @@ app.use(express.json({ limit: "50mb" }));
 
 app.use(coookieParser());
 
+
+
+var corsOptions = {
+  origin: 'http://localhost:5173',
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
+  credentials: true,
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+
 // cors
 
 app.use(
-  cors({
-    origin: process.env.ORIGIN,
-  })
+  cors(corsOptions)
 );
 
 //testing our api

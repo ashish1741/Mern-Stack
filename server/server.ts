@@ -6,7 +6,7 @@ import {v2 as cloudinary} from "cloudinary"
 
 // create a server 
 
-app.listen(3002 , () => {
+app.listen(3000 , () => {
     console.log(`server is connected `);
     connectDb();
     
